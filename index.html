@@ -8,7 +8,12 @@
 <label for="rent">Est. Rent: $</label><input type="number" id="rent" value="2356">/mo<br />
 <label for="Section8"><input id="Section8" type="checkbox" checked/>Check Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
 <label for="rent">Pcnt of S8 Max Rent:</label><input type="number" id="rent" value="75">%<br />
-<label for="zip">Doors:</label> <input type="number" id="doors" value="1"><br />
+<label for="doors">Property Type:</label><select id="doors">
+  <option value="1">Single-Family</option>
+  <option value="2">Duplex</option>
+  <option value="3">Triplex</option>
+  <option value="4">Fourplex</option>
+</select><br />
 
 <p id="answer">Please input your values to see your return.</p>
 
@@ -26,15 +31,16 @@
 <label for="term">Loan Term:</label> <input type="number" id="term" value="30">yrs<br />
 
 <script>
-document.querySelectorAll("input").forEach(elem => elem.addEventListener("input", updateROI))
+document.querySelectorAll("input").forEach(elem => elem.addEventListener("input", updateROI));
+document.querySelectorAll("select").forEach(elem => elem.addEventListener("input", updateROI));
 
 function updateROI(e) {
   /* User inputs */
   let rent = document.getElementById('rent').value/1;
   let price = document.getElementById('price').value/1;
-  let pm = document.getElementById('pm').value/1;
+  let doors = document.getElementById('doors').value/1;
+  let pm = doors * document.getElementById('pm').value/1;
   let zip = document.getElementById('zip').value/1;
-  let beds = document.getElementById('beds').value/1;
   let hoa = document.getElementById('hoa').value/1;
   let downPcnt = document.getElementById('down').value/100;
   let intMoPcnt = document.getElementById('int').value/(12*100);
@@ -42,7 +48,7 @@ function updateROI(e) {
   
   /* Location dependent variables */
   let vacancy = rent * document.getElementById('vacancy').value/100;
-  let maintenance = price * document.getElementById('maintenance').value/(12*100);
+  let maintenance = doors * price * document.getElementById('maintenance').value/(12*100);
   let taxPcnt = document.getElementById('tax').value/(12*100);
   let insPcnt = document.getElementById('ins').value/(12*100);
   
@@ -53,6 +59,7 @@ function updateROI(e) {
   let NOImo = rent - vacancy - OpEx;
   let PTCF = Math.trunc(100 * (rent - (vacancy + OpEx + PrincInt)))/100;
   
+  console.log("doors:"+doors);
   console.log("PTCF:"+PTCF);
   document.getElementById('PTCF').textContent = "Pre-Tax Cashflow: $"+PTCF;
 }
@@ -72,8 +79,6 @@ function updateROI(e) {
 //RH Monthly Property Management Fee (per lease)
 //Tenant Placement Fee (Annual)
 //Maintenance
-//HOA (monthly)
-//Vacancy (Monthly)
 //TCO/mo
 
 </script>
