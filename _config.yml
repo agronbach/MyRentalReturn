@@ -1,1 +1,8 @@
-theme: jekyll-theme-midnight
+# https://jekyllrb.com/docs/configuration/front-matter-defaults/
+defaults:
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+    values:
+      layout: compress
+      theme: jekyll-theme-midnight
