@@ -1,3 +1,8 @@
+---
+---
+{% include /assets/script-1.js %}
+{% include /assets/script-2.js %}
+
 ## Welcome to GitHub Pages
 
 You can use the [editor on GitHub](https://github.com/agronbach/MyRentalReturn/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
