@@ -3,7 +3,7 @@ layout: compress
 ---
 {% include /assets/calculator.js %}
 
-## Welcome to GitHub Pages
+## Welcome to G1tHub Pages
 
 You can use the [editor on GitHub](https://github.com/agronbach/MyRentalReturn/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
