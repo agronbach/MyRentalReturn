@@ -2,13 +2,27 @@
 <html>
 <body>
 
-<h2>My First JavaScript</h2>
+<label for="price">Price: $</label><input type="number" id="price" name="price" value="300000">
+<label for="zip">Zip Code:</label><input type="number" id="zip" name="zip" value="75089"><br />
+<label for="beds">Bedrooms:</label><input type="number" id="beds" name="beds" value="3">
+<label for="rent">Est. Rent: $</label><input type="number" id="rent" name="rent" value="1500">/mo<br />
+<label for="price">Price: $</label><input type="number" id="price" name="price" value="300000">
+<label for="zip">Zip Code:</label><input type="number" id="zip" name="zip" value="75089"><br />
 
-<button type="button"
-onclick="document.getElementById('demo').innerHTML = Date()">
-Click me to display Date and Time.</button>
+<p id="answer">Please input your values to see your return.</p>
 
-<p id="demo"></p>
+<label for="zip">Doors:</label> <input type="number" id="doors" name="doors" value="1">
+<label><input type="checkbox" checked/>Include Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
+<label for="pm">Property Management Fees:</label> <input type="number" id="doors" name="doors" value="1">
+
+<script>
+document.querySelectorAll("input").forEach(elem => elem.addEventListener("input", updateROI))
+
+function updateROI(e) {
+  document.getElementById('answer').textContent = e.target.value;
+}
+
+</script>
 
 </body>
 </html>
