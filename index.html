@@ -1,57 +1,78 @@
 <!DOCTYPE html>
 <html>
-<body>
+<body onload=updateROI()>
 
-<label for="price">Price: $</label><input type="number" id="price" name="price" value="300000">
-<label for="zip">Zip Code:</label><input type="number" id="zip" name="zip" value="75089"><br />
-<label for="beds">Bedrooms:</label><input type="number" id="beds" name="beds" value="3">
-<label for="rent">Est. Rent: $</label><input type="number" id="rent" name="rent" value="1500">/mo<br />
-<label><input type="checkbox" checked/>Check Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
-<label for="rent">Pcnt of S8 Max Rent:</label><input type="number" id="rent" name="rent" value="75">%<br />
-<label for="zip">Doors:</label> <input type="number" id="doors" name="doors" value="1"><br />
-
+<label for="price">Price: $</label><input type="number" id="price" value="335000"><br />
+<label for="zip">Zip Code:</label><input type="number" id="zip" value="75088"><br />
+<label for="beds">Bedrooms:</label><input type="number" id="beds" value="4"><br />
+<label for="rent">Est. Rent: $</label><input type="number" id="rent" value="2356">/mo<br />
+<label for="Section8"><input id="Section8" type="checkbox" checked/>Check Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
+<label for="rent">Pcnt of S8 Max Rent:</label><input type="number" id="rent" value="75">%<br />
+<label for="zip">Doors:</label> <input type="number" id="doors" value="1"><br />
 
 <p id="answer">Please input your values to see your return.</p>
 
+<label for="PTCF"></label><p id="PTCF"></p><br /><br />
 
-<label for="management">Annual Vacancy:</label> <input type="number" id="management" name="management" value="3">%
-<label for="maintenance">Annual Maintenance:</label> <input type="number" id="maintenance" name="maintenance" value="0.5">%
-<label for="pm">Property Management: $</label> <input type="number" id="pm" name="pm" value="80">/mo
-<label for="pm">Insurance (Annual):</label> <input type="number" id="pm" name="pm" value="1.09225">%
-<label for="tax">Property Taxes:</label> <input type="number" id="tax" name="tax" value="2">%<br />
-<label><input type="checkbox" checked/>Finance Purchase</label><br />
-<label for="down">Down Payment:</label> <input type="number" id="down" name="down" value="25">%
-<label for="int">Loan Interest:</label> <input type="number" id="int" name="int" value="4">%<br />
+<label for="vacancy">Vacancy:</label> <input type="number" id="vacancy" value="3.29">%/yr<br />
+<label for="maintenance">Maintenance:</label> <input type="number" id="maintenance" value="0.4477611940298507">%/yr<br />
+<label for="pm">Property Management: $</label> <input type="number" id="pm" value="80">/mo<br />
+<label for="hoa">HOA Fees: $</label> <input type="number" id="hoa" value="10.4166666667">/mo<br />
+<label for="ins">Insurance:</label> <input type="number" id="ins" value="1.09225">%/yr<br />
+<label for="tax">Property Taxes:</label> <input type="number" id="tax" value="1.3614560">%/yr<br />
+<label for="financing"><input type="checkbox" id="financing" checked/>Finance Purchase</label><br />
+<label for="down">Down Payment:</label> <input type="number" id="down" value="25">%
+<label for="int">Loan Interest:</label> <input type="number" id="int" value="3.99">%<br />
+<label for="term">Loan Term:</label> <input type="number" id="term" value="30">yrs<br />
 
 <script>
 document.querySelectorAll("input").forEach(elem => elem.addEventListener("input", updateROI))
 
 function updateROI(e) {
-  document.getElementById('answer').textContent = e.target.value;
+  /* User inputs */
+  let rent = document.getElementById('rent').value/1;
+  let price = document.getElementById('price').value/1;
+  let pm = document.getElementById('pm').value/1;
+  let zip = document.getElementById('zip').value/1;
+  let beds = document.getElementById('beds').value/1;
+  let hoa = document.getElementById('hoa').value/1;
+  let downPcnt = document.getElementById('down').value/100;
+  let intMoPcnt = document.getElementById('int').value/(12*100);
+  let term = document.getElementById('term').value/1;
+  
+  /* Location dependent variables */
+  let vacancy = rent * document.getElementById('vacancy').value/100;
+  let maintenance = price * document.getElementById('maintenance').value/(12*100);
+  let taxPcnt = document.getElementById('tax').value/(12*100);
+  let insPcnt = document.getElementById('ins').value/(12*100);
+  
+  /* Calculations */
+  let TaxInsCost = price * (taxPcnt + insPcnt);
+  let OpEx = TaxInsCost + pm + hoa + maintenance;
+  let PrincInt = (price *(1 - downPcnt)*intMoPcnt) / (1- Math.pow(1+intMoPcnt, term*-12));
+  let NOImo = rent - vacancy - OpEx;
+  let PTCF = Math.trunc(100 * (rent - (vacancy + OpEx + PrincInt)))/100;
+  
+  console.log("PTCF:"+PTCF);
+  document.getElementById('PTCF').textContent = "Pre-Tax Cashflow: $"+PTCF;
 }
 
 //$/ft
-//PTCF
+
 //CCR
 //CapRate
 //Payoff Mortgage (Years)
 //50% DCR
 //RTV
-//NOI (Monthly Net Operating Income)
-//Pr+Int
 //Down ($)
 //TCI: Total Cash Invested
-//Loan Term
 //Interest Rate
 //Interest Cost (Monthly)
 //City
-//Zip
-//Tax+In (Monthly)
 //RH Monthly Property Management Fee (per lease)
 //Tenant Placement Fee (Annual)
 //Maintenance
 //HOA (monthly)
-//OpEx/mo
 //Vacancy (Monthly)
 //TCO/mo
 
