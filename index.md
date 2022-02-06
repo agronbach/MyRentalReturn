@@ -1,7 +1,7 @@
 ---
+layout: compress
 ---
-{% include /assets/script-1.js %}
-{% include /assets/script-2.js %}
+{% include /assets/calculator.js %}
 
 ## Welcome to GitHub Pages
 
