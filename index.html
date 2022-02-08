@@ -34,20 +34,20 @@
 
 <h1>Investment Property Rental Return</h1>
 
-<p>Please enter the property information you would like to analyze below, your return will be calculated automatically</p>
+<p id="initialHelpText">Please enter the property information you would like to analyze below, your return will be calculated automatically</p>
 
 <p id="feedbackBox"></p>
 
-<label for="PTCF"></label><h3 id="PTCF"></h3><br /><br />
+<label for="PTCF"></label><h3 id="PTCF"></h3>
 
 <div class="row">
   <div class="column" style="background-color:#aaa;">
     <h2>Income</h2>
     <label for="price">Price: $</label><input type="number" id="price" value="335000" style="width: 70px;"><br />
-    <label for="zip">Zip Code:</label><input type="number" id="zip" value="75075" style="width: 60px;"><br />
+    <label for="zip">Zip Code: </label><input type="number" id="zip" value="75075" style="width: 60px;"><br />
     <label for="rent">Est. Rent: $</label><input type="number" id="rent" value="1" style="width: 55px;">/mo<br />
-    <label for="vacancy">Vacancy:</label> <input type="number" id="vacancy" value="3.29" style="width: 50px;">%/yr<br />
-    <label for="doors">Property Type:</label><select id="doors">
+    <label for="vacancy">Vacancy: </label> <input type="number" id="vacancy" value="3.29" style="width: 50px;">%/yr<br />
+    <label for="doors">Property Type: </label><select id="doors">
       <option value="1">Single-Family</option>
       <option value="2">Duplex</option>
       <option value="3">Triplex</option>
@@ -55,30 +55,33 @@
     </select><br />
     <label for="Section8"><input id="Section8" type="checkbox"/>Include Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
     <div id="section8options" hidden>
-      <label for="beds">Bedrooms:</label><input type="number" id="beds" value="3" style="width: 30px;"><br />
-      <label for="s8pcnt">Pcnt of S8 Max Rent:</label><input type="number" id="s8pcnt" value="75" style="width: 35px;">%<br />
+      <label for="beds">Bedrooms: </label><input type="number" id="beds" value="3" style="width: 30px;"><br />
+      <label for="s8maxRent">Max S8 Rent: $</label><input type="number" id="s8maxRent" value="1" style="width: 50px;">/mo<br />
+      <label for="s8pcnt">Est. Percent of S8 Max Rent: </label><input type="number" id="s8pcnt" value="75" style="width: 35px;">%<br />
+      <label for="s8estRent">Estimated S8 Rent: $</label><input type="number" id="s8estRent" value="1" style="width: 50px;">/mo<br />
     </div>
     <label for="financing"><input type="checkbox" id="financing" checked />Finance Purchase</label><br />
     <div id="financingOptions">
-      <label for="down">Down Payment:</label> <input type="number" id="down" value="25" style="width: 35px;">%<br />
-      <label for="int">Loan Interest:</label> <input type="number" id="int" value="3.99" style="width: 50px;">%<br />
-      <label for="term">Loan Term:</label> <input type="number" id="term" value="30" style="width: 35px;">yrs<br /><br />
+      <label for="down">Down Payment: </label> <input type="number" id="down" value="25" style="width: 35px;">%<br />
+      <label for="int">Loan Interest: </label> <input type="number" id="int" value="3.99" style="width: 50px;">%<br />
+      <label for="term">Loan Term: </label> <input type="number" id="term" value="30" style="width: 35px;">yrs<br /><br />
     </div>
   </div>
   <div class="column" style="background-color:#bbb;">
     <h2>Operating Expenses</h2>
-    <label for="maintenance">Maintenance:</label> <input type="number" id="maintenance" value="0.5" style="width: 42px;">%/yr<br /><!--value="0.4477611940298507"-->
+    <label for="tax">Property Taxes: </label> <input type="number" id="tax" value="99" style="width: 75px;">%/yr<br />
+    <label for="maintenance">Maintenance: </label> <input type="number" id="maintenance" value="0.5" style="width: 42px;">%/yr<br /><!--value="0.4477611940298507"-->
     <label for="pm">Property Management: $</label> <input type="number" id="pm" value="80" style="width: 35px;">/mo<br />
     <label for="hoa">HOA Fees: $</label> <input type="number" id="hoa" value="0" style="width: 55px;">/mo<br />
     <label for="fees">Other Costs: $</label> <input type="number" id="fees" value="0" style="width: 55px;">/mo<br />
-    <label for="ins">Insurance:</label> <input type="number" id="ins" value="1.09225" style="width: 65px;">%/yr<br />
-    <label for="tax">Property Taxes:</label> <input type="number" id="tax" value="99" style="width: 75px;">%/yr<br />
+    <label for="ins">Insurance: </label> <input type="number" id="ins" value="1.09225" style="width: 65px;">%/yr<br />
   </div>
 </div>
 
 <script>
 document.querySelectorAll("input").forEach(elem => elem.addEventListener("input", updateROI));
 document.querySelectorAll("select").forEach(elem => elem.addEventListener("input", updateROI));
+let feesChanged = false;
 
 function updateROI(e) {
   document.getElementById('feedbackBox').innerHTML = ""; /* clear feedback box */
@@ -89,6 +92,8 @@ function updateROI(e) {
     } else if (e.target.id == "financing") {
       document.getElementById('financingOptions').style.display = (e.target.checked) ? "block" : "none";
     }
+    /* Clear initial help text as the user has input something for us to process, and has read this text */
+    document.getElementById('initialHelpText').innerHTML = "";
   }
 
   /* User inputs */
@@ -98,9 +103,23 @@ function updateROI(e) {
   let doors = document.getElementById('doors').value/1;
   let pm = doors * document.getElementById('pm').value/1;
   let zip = document.getElementById('zip').value/1;
+  if (document.getElementById('zip').value.length < 5) {
+    console.error("Invalid zip code: "+zip+", not enough digits, exiting...");
+    document.getElementById('feedbackBox').innerHTML = "<h2>ERROR: Zip Code too short ("+zip+"), please enter 5 digits and try again.</h2>";
+    document.getElementById('PTCF').textContent = "";
+    return; /* Ensure this is a valid zip code before proceeding */
+  }
   let s8pcnt = document.getElementById('s8pcnt').value/100;
-  let s8rent = (document.getElementById("Section8").checked) ? s8nTXrents[zip][beds]*s8pcnt : rent;
-  if (s8rent > rent) {rent = s8rent;document.getElementById('rent').value = s8rent}
+  let s8maxRent,s8estRent;
+  if (document.getElementById("Section8").checked) {
+    document.getElementById('s8maxRent').value = s8nTXrents[zip][beds];
+    document.getElementById('s8estRent').value = s8nTXrents[zip][beds] * s8pcnt;
+    s8estRent = document.getElementById('s8estRent').value;
+    if (s8estRent > rent) {
+      document.getElementById('feedbackBox').innerHTML += "<h3>Calculating with higher estimated Section 8 monthly rent ("+s8estRent+") instead of inputted estimated monthly rent of "+rent+".</h3>";
+      rent = s8estRent;
+    }
+  }
   let hoa = document.getElementById('hoa').value/1;
   let downPcnt = document.getElementById('down').value/100;
   let intMoPcnt = document.getElementById('int').value/(12*100);
@@ -121,8 +140,12 @@ function updateROI(e) {
   let insPcnt = document.getElementById('ins').value/(12*100);
   let fees = document.getElementById('fees').value/1;
   if (fees == 0 && ZipCityCountyTX[zip][0] == "Rowlett") {
-    document.getElementById('fees').value = ZipCityCountyTX[zip][3];
+    document.getElementById('fees').value = ZipCityCountyTX[zip][3]/1;
     document.getElementById('feedbackBox').innerHTML += "Looks like you forgot to include Rowlett's rental license annual fees, updated 'Other Costs' to include these";
+    feesChanged = true;
+  } else if (feesChanged) { /* If we changed fees previously, revert them now */
+    document.getElementById('fees').value = 0;
+    fees = 0;
   }
   
   /* Calculations */
@@ -135,6 +158,7 @@ function updateROI(e) {
 }
 
 //$/ft
+//Closing Costs
 //CCR
 //CapRate
 //Payoff Mortgage (Years)
