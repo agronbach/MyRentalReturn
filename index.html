@@ -273,7 +273,7 @@ function updateROI(e) {
   document.getElementById('PTCF').textContent = "Pre-Tax Cashflow: $"+PTCF+" per month";
   
   /* Update URL parameters for URL saving and sharing */
-  var uri = window.location.href.split("?")[0];
+  var uri;
   /* Only print remaining params if they aren't default values */
   if (document.getElementById('purchase').value/1 != 1) uri += "&n="+document.getElementById('purchase').value;
   if (document.getElementById('market').value/1 != 335000) uri += "&m="+document.getElementById('market').value;
@@ -302,11 +302,19 @@ function updateROI(e) {
   if (document.getElementById('acIns').checked != true) uri += "&aci="+document.getElementById('acIns').checked;
   if (document.getElementById('calcIns').value/1 != 0.5) uri += "&ci="+document.getElementById('calcIns').value;
   if (document.getElementById('manIns').value/1 != 1800) uri += "&mi="+document.getElementById('manIns').value;
-  uri = encodeURI(uri);
-  console.log("uri generated as:"+uri);
-  /* Update title and description to improve SEO for chosen mon */
-  var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
-  window.history.pushState(null, newTitle, uri);
+  if (uri) {
+    uri = encodeURI(window.location.href.split("?")[0]+"?" + uri);
+    console.log("uri generated as:"+uri);
+    /* Update title and description to improve SEO for chosen mon */
+    var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
+    window.history.pushState(null, newTitle, uri);
+  } else {
+    uri = encodeURI(window.location.href.split("?")[0]);
+    console.log("uri generated as:"+uri);
+    /* Update title and description to improve SEO for chosen mon */
+    var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
+    window.history.pushState(null, newTitle, uri);
+  }
 }
 
 //$/ft
