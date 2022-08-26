@@ -30,7 +30,7 @@
 
 </style>
 </head>
-<body onload=updateROI()>
+<body onload=checkURI()>
 
 <h1>Investment Property Rental Return</h1>
 
@@ -43,7 +43,12 @@
 <div class="row">
   <div class="column" style="background-color:#aaa;">
     <h2>Income</h2>
-    <label for="price">Price: $</label><input type="number" id="price" value="335000" style="width: 70px;"><br />
+    <label for="purchase">Property Type: </label><select id="purchase">
+      <option value="1">New Purchase</option>
+      <option value="0">Existing Rental</option>
+    </select><br />
+    <label for="market">Market Price: $</label><input type="number" id="market" value="335000" style="width: 70px;"><br />
+    <label for="price">Purchase Price: $</label><input type="number" id="price" value="335000" style="width: 70px;"><br />
     <label for="zip">Zip Code: </label><input type="number" id="zip" value="75075" style="width: 60px;"><br />
     <label for="rent">Est. Rent: $</label><input type="number" id="rent" value="1" style="width: 55px;">/mo<br />
     <label for="vacancy">Vacancy: </label> <input type="number" id="vacancy" value="3.29" style="width: 50px;">%/yr<br />
@@ -52,24 +57,26 @@
       <option value="2">Duplex</option>
       <option value="3">Triplex</option>
       <option value="4">Fourplex</option>
-    </select><br />
+    </select><br /><br />
     <label for="Section8"><input id="Section8" type="checkbox"/>Include Section8 Rent</label><!--https://stackoverflow.com/a/6293626--><br />
     <div id="section8options" hidden>
       <label for="beds">Bedrooms: </label><input type="number" id="beds" value="3" style="width: 30px;"><br />
       <label for="s8maxRent">Max S8 Rent: $</label><input type="number" id="s8maxRent" value="1" style="width: 50px;">/mo<br />
       <label for="s8pcnt">Est. Percent of S8 Max Rent: </label><input type="number" id="s8pcnt" value="75" style="width: 35px;">%<br />
       <label for="s8estRent">Estimated S8 Rent: $</label><input type="number" id="s8estRent" value="1" style="width: 50px;">/mo<br />
-    </div>
+    </div><br />
     <label for="financing"><input type="checkbox" id="financing" checked />Finance Purchase</label><br />
     <div id="financingOptions">
+      <label for="autoCalc"><input type="checkbox" id="autoCalc" checked />Auto-Calculate PnI</label><br />
       <label for="down">Down Payment: </label> <input type="number" id="down" value="25" style="width: 35px;">%<br />
-      <label for="int">Loan Interest: </label> <input type="number" id="int" value="5.99" style="width: 50px;">%<br />
-      <label for="term">Loan Term: </label> <input type="number" id="term" value="30" style="width: 35px;">yrs<br /><br />
+      <label for="int">Loan Interest: </label> <input type="number" id="int" value="3.99" style="width: 50px;">%<br />
+      <label for="yrs">Loan Term: </label> <input type="number" id="yrs" value="30" style="width: 35px;">yrs<br />
+      <label for="pni">Monthly P+I: $</label> <input type="number" id="pni" value="1198.06" style="width: 64px;"><br /><br />
     </div>
   </div>
   <div class="column" style="background-color:#bbb;">
     <h2>Operating Expenses</h2>
-    <label for="tax">Property Taxes: </label> <input type="number" id="tax" value="99" style="width: 75px;">%/yr<br />
+    <label for="tax">Property Taxes: </label> <input type="number" id="tax" value="2.016559" style="width: 75px;">%/yr<br />
     <label for="maintenance">Maintenance: </label> <input type="number" id="maintenance" value="0.5" style="width: 42px;">%/yr<br /><!--value="0.4477611940298507"-->
     <label for="pm">Property Management: $</label> <input type="number" id="pm" value="0" style="width: 35px;">/mo<br />
     <label for="hoa">HOA Fees: $</label> <input type="number" id="hoa" value="0" style="width: 55px;">/mo<br />
@@ -83,22 +90,112 @@ document.querySelectorAll("input").forEach(elem => elem.addEventListener("input"
 document.querySelectorAll("select").forEach(elem => elem.addEventListener("input", updateROI));
 let feesChanged = false;
 
+function checkURI() {
+  let URL = window.location.href.split("?")[1];
+  URL = decodeURI(URL);
+  let params = URL.split("&");
+  
+  for (let i=0; i<params.length; i++)
+  {
+    switch (params[i].split("=")[0]) {
+      case "n":
+        document.getElementById('purchase').value = params[i].split("=")[1];
+        break;
+      case "m":
+        document.getElementById('market').value = params[i].split("=")[1];
+        break;
+      case "p":
+        document.getElementById('price').value = params[i].split("=")[1];
+        break;
+      case "z":
+        document.getElementById('zip').value = params[i].split("=")[1];
+        break;
+      case "r":
+        document.getElementById('rent').value = params[i].split("=")[1];
+        break;
+      case "v":
+        document.getElementById('vacancy').value = params[i].split("=")[1];
+        break;
+      case "d":
+        document.getElementById('doors').value = params[i].split("=")[1];
+        break;
+      case "s8":
+        document.getElementById('Section8').checked = params[i].split("=")[1];
+        break;
+      case "b":
+        document.getElementById('beds').value = params[i].split("=")[1];
+        break;
+      case "s8p":
+        document.getElementById('s8pcnt').value = params[i].split("=")[1];
+        break;
+      case "s8m":
+        document.getElementById('s8maxRent').value = params[i].split("=")[1];
+        break;
+      case "s8r":
+        document.getElementById('s8estRent').value = params[i].split("=")[1];
+        break;
+      case "f":
+        document.getElementById('financing').checked = params[i].split("=")[1];
+        break;
+      case "a":
+        document.getElementById('autoCalc').checked = params[i].split("=")[1];
+        break;
+      case "d":
+        document.getElementById('down').value = params[i].split("=")[1];
+        break;
+      case "int":
+        document.getElementById('int').value = params[i].split("=")[1];
+        break;
+      case "y":
+        document.getElementById('yrs').value = params[i].split("=")[1];
+        break;
+      case "pni":
+        document.getElementById('pni').value = params[i].split("=")[1];
+        break;
+      case "t":
+        document.getElementById('tax').value = params[i].split("=")[1];
+        break;
+      case "m":
+        document.getElementById('maintenance').value = params[i].split("=")[1];
+        break;
+      case "pm":
+        document.getElementById('pm').value = params[i].split("=")[1];
+        break;
+      case "h":
+        document.getElementById('hoa').value = params[i].split("=")[1];
+        break;
+      case "fees":
+        document.getElementById('fees').value = params[i].split("=")[1];
+        break;
+      case "ins":
+        document.getElementById('ins').value = params[i].split("=")[1];
+        break;
+    }
+  }
+
+  updateROI();
+}
+
 function updateROI(e) {
   document.getElementById('feedbackBox').innerHTML = ""; /* clear feedback box */
   
-  if (e && e.target.checked !== undefined) {
-    if (e.target.id == "Section8") {
-      document.getElementById('section8options').style.display = (e.target.checked) ? "block" : "none";
-    } else if (e.target.id == "financing") {
-      document.getElementById('financingOptions').style.display = (e.target.checked) ? "block" : "none";
+  if (e) {
+    if (e.target.checked !== undefined) {
+      if (e.target.id == "Section8") {
+        document.getElementById('section8options').style.display = (e.target.checked) ? "block" : "none";
+      } else if (e.target.id == "financing") {
+        document.getElementById('financingOptions').style.display = (e.target.checked) ? "block" : "none";
+      }
     }
     /* Clear initial help text as the user has input something for us to process, and has read this text */
     document.getElementById('initialHelpText').innerHTML = "";
   }
 
   /* User inputs */
+  let purchase = document.getElementById('purchase').value/1 > 0 ? true : false;
   let rent = document.getElementById('rent').value/1;
   let price = document.getElementById('price').value/1;
+  let market = purchase ? price : document.getElementById('market').value/1;
   let beds = document.getElementById('beds').value/1;
   let doors = document.getElementById('doors').value/1;
   let pm = doors * document.getElementById('pm').value/1;
@@ -123,11 +220,11 @@ function updateROI(e) {
   let hoa = document.getElementById('hoa').value/1;
   let downPcnt = document.getElementById('down').value/100;
   let intMoPcnt = document.getElementById('int').value/(12*100);
-  let term = document.getElementById('term').value/1;
+  let yrs = document.getElementById('yrs').value/1;
   
   /* Location dependent variables */
   let vacancy = rent * document.getElementById('vacancy').value/100;
-  let maintenance = doors * price * document.getElementById('maintenance').value/(12*100);
+  let maintenance = doors * market * document.getElementById('maintenance').value/(12*100);
   let taxPcnt;
   if (ZipCityCountyTX[zip][2] !== undefined) {
     taxPcnt = ZipCityCountyTX[zip][2]/(12*100);
@@ -149,12 +246,49 @@ function updateROI(e) {
   }
   
   /* Calculations */
-  let TaxInsCost = price * (taxPcnt + insPcnt);
+  let PrincInt = 0;
+  let TaxInsCost = market * (taxPcnt + insPcnt);
   let OpEx = TaxInsCost + pm + hoa + fees + maintenance;
-  let PrincInt = (document.getElementById("financing").checked) ? (price *(1 - downPcnt)*intMoPcnt) / (1- Math.pow(1+intMoPcnt, term*-12)) : 0;
-  let NOImo = rent - vacancy - OpEx;
+  if (document.getElementById("financing").checked) {
+    if (document.getElementById("autoCalc").checked) {
+      PrincInt = (price *(1 - downPcnt)*intMoPcnt) / (1- Math.pow(1+intMoPcnt, yrs*-12));
+      document.getElementById('pni').value = Math.round(PrincInt * 100) / 100;
+    } else {PrincInt = document.getElementById("pni").value/1;}
+  } else {PrincInt = 0;}
+  //let NOImo = rent - vacancy - OpEx;
   let PTCF = Math.trunc(100 * (rent - (vacancy + OpEx + PrincInt)))/100;
   document.getElementById('PTCF').textContent = "Pre-Tax Cashflow: $"+PTCF+" per month";
+  
+  /* Update URL parameters for URL saving and sharing */
+  var uri = window.location.href.split("?")[0];
+  /* Only print remaining params if they aren't default values */
+  if (document.getElementById('purchase').value/1 != 1) uri += "&n="+document.getElementById('purchase').value;
+  if (document.getElementById('market').value/1 != 335000) uri += "&m="+document.getElementById('market').value;
+  if (document.getElementById('price').value/1 != 335000) uri += "&p="+document.getElementById('price').value;
+  if (document.getElementById('zip').value/1 != 75075) uri += "&z="+document.getElementById('zip').value;
+  if (document.getElementById('rent').value/1 != 1) uri += "&r="+document.getElementById('rent').value;
+  if (document.getElementById('vacancy').value/1 != 3.29) uri += "&v="+document.getElementById('vacancy').value;
+  if (document.getElementById('doors').value/1 != 1) uri += "&d="+document.getElementById('doors').value;
+  if (document.getElementById('Section8').checked != false) uri += "&s8="+document.getElementById('Section8').checked;
+  if (document.getElementById('beds').value/1 != 3) uri += "&b="+document.getElementById('beds').value;
+  if (document.getElementById('s8pcnt').value/1 != 75) uri += "&s8p="+document.getElementById('s8pcnt').value;
+  if (document.getElementById('s8maxRent').value/1 != 1) uri += "&s8m="+document.getElementById('s8maxRent').value;
+  if (document.getElementById('s8estRent').value/1 != 1) uri += "&s8r="+document.getElementById('s8estRent').value;
+  if (document.getElementById('financing').checked != true) uri += "&f="+document.getElementById('financing').checked;
+  if (document.getElementById('autoCalc').checked != true) uri += "&a="+document.getElementById('autoCalc').checked;
+  if (document.getElementById('down').value/1 != 25) uri += "&d="+document.getElementById('down').value;
+  if (document.getElementById('int').value/1 != 3.99) uri += "&int="+document.getElementById('int').value;
+  if (document.getElementById('yrs').value/1 != 30) uri += "&y="+document.getElementById('yrs').value;
+  if (document.getElementById('pni').value/1 != 1198.06) uri += "&pni="+document.getElementById('pni').value;
+  if (document.getElementById('tax').value/1 != 2.016559) uri += "&t="+document.getElementById('tax').value;
+  if (document.getElementById('maintenance').value/1 != 0.5) uri += "&m="+document.getElementById('maintenance').value;
+  if (document.getElementById('pm').value/1 != 0) uri += "&pm="+document.getElementById('pm').value;
+  if (document.getElementById('pm').value/1 != 0) uri += "&pm="+document.getElementById('pm').value;
+  if (document.getElementById('hoa').value/1 != 0) uri += "&h="+document.getElementById('hoa').value;
+  if (document.getElementById('fees').value/1 != 0) uri += "&fees="+document.getElementById('fees').value;
+  if (document.getElementById('ins').value/1 != 1.09225) uri += "&ins="+document.getElementById('ins').value;
+  uri = encodeURI(uri);
+  console.log("uri generated as:"+uri);
 }
 
 //$/ft
@@ -186,7 +320,6 @@ let ZipCityCountyTX = {
   "75024": ["Plano","Collin","2.016559"],
   "75025": ["Plano","Collin","2.016559"],
   "75028": ["Flower Mound","Denton"],
-  "75032": ["Rockwall","Rockwall"],
   "75032": ["Rockwall","Rockwall"],
   "75033": ["Frisco","Denton"],
   "75034": ["Frisco","Denton"],
@@ -229,10 +362,8 @@ let ZipCityCountyTX = {
   "75081": ["Richardson","Dallas"],
   "75082": ["Richardson","Dallas"],
   "75087": ["Rockwall","Rockwall"],
-  "75087": ["Rockwall","Rockwall"],
-  "75088": ["Rowlett","Dallas","2.617756","10.42"],
-  "75089": ["Rowlett","Dallas","2.617756","10.42"],
-  "75090": ["Sherman","Grayson"],
+  "75088": ["Rowlett","Dallas","1.361456","10.42"],
+  "75089": ["Rowlett","Dallas","1.361456","10.42"],
   "75090": ["Sherman","Grayson"],
   "75092": ["Sherman","Grayson"],
   "75093": ["Plano","Collin","2.016559"],
@@ -255,7 +386,6 @@ let ZipCityCountyTX = {
   "75126": ["Forney","Kaufman"],
   "75127": ["Fruitvale","Van Zandt"],
   "75134": ["Lancaster","Dallas"],
-  "75135": ["Caddo Mills","Hunt"],
   "75135": ["Caddo Mills","Hunt"],
   "75137": ["Duncanville","Dallas"],
   "75140": ["Grand Saline","Van Zandt"],
@@ -284,12 +414,9 @@ let ZipCityCountyTX = {
   "75169": ["Wills Point","Van Zandt"],
   "75172": ["Wilmer","Dallas"],
   "75173": ["Nevada","Collin"],
-  "75173": ["Nevada","Collin"],
   "75180": ["Balch Springs","Dallas"],
   "75181": ["Mesquite","Dallas"],
   "75182": ["Sunnyvale","Dallas"],
-  "75189": ["Royse City","Rockwall"],
-  "75189": ["Royse City","Rockwall"],
   "75189": ["Royse City","Rockwall"],
   "75201": ["Dallas","Dallas"],
   "75202": ["Dallas","Dallas"],
@@ -405,8 +532,8 @@ let ZipCityCountyTX = {
   "75455": ["Mount Pleasant","Titus"],
   "75457": ["Mount Vernon","Franklin"],
   "75459": ["Howe","Grayson"],
-  "75460": ["Paris","Lamar","2.147730"],
-  "75462": ["Paris","Lamar","2.147730"],
+  "75460": ["Paris","Lamar"],
+  "75462": ["Paris","Lamar"],
   "75468": ["Pattonville","Lamar"],
   "75469": ["Pecan Gap","Delta"],
   "75470": ["Petty","Lamar"],
@@ -425,7 +552,6 @@ let ZipCityCountyTX = {
   "75487": ["Talco","Franklin"],
   "75488": ["Telephone","Fannin"],
   "75490": ["Trenton","Fannin"],
-  "75491": ["Whitewright","Grayson"],
   "75491": ["Whitewright","Grayson"],
   "75492": ["Windom","Fannin"],
   "75494": ["Winnsboro","Wood"],
@@ -495,7 +621,6 @@ let ZipCityCountyTX = {
   "75704": ["Tyler","Smith"],
   "75705": ["Tyler","Smith"],
   "75706": ["Tyler","Smith"],
-  "75706": ["Tyler","Smith"],
   "75707": ["Tyler","Smith"],
   "75708": ["Tyler","Smith"],
   "75709": ["Tyler","Smith"],
@@ -539,7 +664,6 @@ let ZipCityCountyTX = {
   "75845": ["Groveton","Trinity"],
   "75846": ["Jewett","Leon"],
   "75847": ["Kennard","Houston"],
-  "75850": ["Leona","Leon"],
   "75850": ["Leona","Leon"],
   "75851": ["Lovelady","Houston"],
   "75852": ["Midway","Madison"],
@@ -600,7 +724,6 @@ let ZipCityCountyTX = {
   "76005": ["Arlington","Tarrant"],
   "76006": ["Arlington","Tarrant"],
   "76008": ["Aledo","Parker"],
-  "76008": ["Aledo","Parker"],
   "76009": ["Alvarado","Johnson"],
   "76010": ["Arlington","Tarrant"],
   "76011": ["Arlington","Tarrant"],
@@ -621,7 +744,6 @@ let ZipCityCountyTX = {
   "76033": ["Cleburne","Johnson"],
   "76034": ["Colleyville","Tarrant"],
   "76035": ["Cresson","Hood"],
-  "76036": ["Crowley","Tarrant"],
   "76036": ["Crowley","Tarrant"],
   "76039": ["Euless","Tarrant"],
   "76040": ["Euless","Tarrant"],
@@ -650,7 +772,6 @@ let ZipCityCountyTX = {
   "76077": ["Rainbow","Somervell"],
   "76078": ["Rhome","Wise"],
   "76082": ["Springtown","Parker"],
-  "76084": ["Venus","Johnson"],
   "76084": ["Venus","Johnson"],
   "76085": ["Weatherford","Parker"],
   "76086": ["Weatherford","Parker"],
@@ -724,7 +845,6 @@ let ZipCityCountyTX = {
   "76239": ["Forestburg","Montague"],
   "76240": ["Gainesville","Cooke"],
   "76244": ["Keller","Tarrant"],
-  "76244": ["Keller","Tarrant"],
   "76245": ["Gordonville","Grayson"],
   "76247": ["Justin","Denton"],
   "76248": ["Keller","Tarrant"],
@@ -735,7 +855,6 @@ let ZipCityCountyTX = {
   "76255": ["Nocona","Montague"],
   "76258": ["Pilot Point","Denton"],
   "76259": ["Ponder","Denton"],
-  "76262": ["Roanoke","Denton"],
   "76262": ["Roanoke","Denton"],
   "76263": ["Rosston","Cooke"],
   "76264": ["Sadler","Grayson"],
@@ -786,7 +905,6 @@ let ZipCityCountyTX = {
   "76443": ["Cross Plains","Callahan"],
   "76444": ["De Leon","Comanche"],
   "76445": ["Desdemona","Eastland"],
-  "76446": ["Dublin","Erath"],
   "76446": ["Dublin","Erath"],
   "76448": ["Eastland","Eastland"],
   "76449": ["Graford","Palo Pinto"],
@@ -984,7 +1102,6 @@ let ZipCityCountyTX = {
   "76941": ["Mertzon","Irion"],
   "76943": ["Ozona","Crockett"],
   "76945": ["Robert Lee","Coke"],
-  "76945": ["Robert Lee","Coke"],
   "76949": ["Silver","Coke"],
   "76950": ["Sonora","Sutton"],
   "76951": ["Sterling City","Sterling"],
@@ -1036,7 +1153,6 @@ let ZipCityCountyTX = {
   "77045": ["Houston","Harris"],
   "77046": ["Houston","Harris"],
   "77047": ["Houston","Harris"],
-  "77047": ["Houston","Harris"],
   "77048": ["Houston","Harris"],
   "77049": ["Houston","Harris"],
   "77050": ["Houston","Harris"],
@@ -1077,7 +1193,6 @@ let ZipCityCountyTX = {
   "77086": ["Houston","Harris"],
   "77087": ["Houston","Harris"],
   "77088": ["Houston","Harris"],
-  "77089": ["Houston","Harris"],
   "77089": ["Houston","Harris"],
   "77090": ["Houston","Harris"],
   "77091": ["Houston","Harris"],
@@ -1150,16 +1265,12 @@ let ZipCityCountyTX = {
   "77399": ["Livingston","Polk"],
   "77401": ["Bellaire","Harris"],
   "77406": ["Richmond","Fort Bend"],
-  "77406": ["Richmond","Fort Bend"],
   "77407": ["Richmond","Fort Bend"],
   "77414": ["Bay City","Matagorda"],
-  "77417": ["Beasley","Fort Bend"],
   "77417": ["Beasley","Fort Bend"],
   "77418": ["Bellville","Austin"],
   "77420": ["Boling","Wharton"],
   "77422": ["Brazoria","Brazoria"],
-  "77423": ["Brookshire","Waller"],
-  "77423": ["Brookshire","Waller"],
   "77423": ["Brookshire","Waller"],
   "77426": ["Chappell Hill","Washington"],
   "77429": ["Cypress","Harris"],
@@ -1167,12 +1278,10 @@ let ZipCityCountyTX = {
   "77433": ["Cypress","Harris"],
   "77434": ["Eagle Lake","Colorado"],
   "77435": ["East Bernard","Wharton"],
-  "77435": ["East Bernard","Wharton"],
   "77437": ["El Campo","Wharton"],
   "77441": ["Fulshear","Fort Bend"],
   "77442": ["Garwood","Colorado"],
   "77444": ["Guy","Fort Bend"],
-  "77445": ["Hempstead","Waller"],
   "77445": ["Hempstead","Waller"],
   "77447": ["Hockley","Harris"],
   "77449": ["Katy","Harris"],
@@ -1183,8 +1292,6 @@ let ZipCityCountyTX = {
   "77465": ["Palacios","Matagorda"],
   "77468": ["Pledger","Matagorda"],
   "77469": ["Richmond","Fort Bend"],
-  "77469": ["Richmond","Fort Bend"],
-  "77471": ["Rosenberg","Fort Bend"],
   "77471": ["Rosenberg","Fort Bend"],
   "77474": ["Sealy","Austin"],
   "77477": ["Stafford","Fort Bend"],
@@ -1193,13 +1300,11 @@ let ZipCityCountyTX = {
   "77480": ["Sweeny","Brazoria"],
   "77482": ["Van Vleck","Matagorda"],
   "77484": ["Waller","Harris"],
-  "77484": ["Waller","Harris"],
   "77485": ["Wallis","Austin"],
   "77486": ["West Columbia","Brazoria"],
   "77488": ["Wharton","Wharton"],
   "77489": ["Missouri City","Fort Bend"],
   "77493": ["Katy","Harris"],
-  "77494": ["Katy","Fort Bend"],
   "77494": ["Katy","Fort Bend"],
   "77498": ["Sugar Land","Fort Bend"],
   "77502": ["Pasadena","Harris"],
@@ -1209,7 +1314,6 @@ let ZipCityCountyTX = {
   "77506": ["Pasadena","Harris"],
   "77507": ["Pasadena","Harris"],
   "77510": ["Santa Fe","Galveston"],
-  "77510": ["Santa Fe","Galveston"],
   "77511": ["Alvin","Brazoria"],
   "77514": ["Anahuac","Chambers"],
   "77515": ["Angleton","Brazoria"],
@@ -1217,20 +1321,15 @@ let ZipCityCountyTX = {
   "77518": ["Bacliff","Galveston"],
   "77519": ["Batson","Hardin"],
   "77520": ["Baytown","Harris"],
-  "77520": ["Baytown","Harris"],
   "77521": ["Baytown","Harris"],
-  "77521": ["Baytown","Harris"],
-  "77523": ["Baytown","Chambers"],
   "77523": ["Baytown","Chambers"],
   "77530": ["Channelview","Harris"],
   "77531": ["Clute","Brazoria"],
   "77532": ["Crosby","Harris"],
   "77534": ["Danbury","Brazoria"],
   "77535": ["Dayton","Liberty"],
-  "77535": ["Dayton","Liberty"],
   "77536": ["Deer Park","Harris"],
   "77538": ["Devers","Liberty"],
-  "77539": ["Dickinson","Galveston"],
   "77539": ["Dickinson","Galveston"],
   "77541": ["Freeport","Brazoria"],
   "77545": ["Fresno","Fort Bend"],
@@ -1246,7 +1345,6 @@ let ZipCityCountyTX = {
   "77564": ["Hull","Liberty"],
   "77565": ["Kemah","Galveston"],
   "77566": ["Lake Jackson","Brazoria"],
-  "77568": ["La Marque","Galveston"],
   "77568": ["La Marque","Galveston"],
   "77571": ["La Porte","Harris"],
   "77573": ["League City","Galveston"],
@@ -1294,7 +1392,6 @@ let ZipCityCountyTX = {
   "77801": ["Bryan","Brazos"],
   "77802": ["Bryan","Brazos"],
   "77803": ["Bryan","Brazos"],
-  "77807": ["Bryan","Brazos"],
   "77807": ["Bryan","Brazos"],
   "77808": ["Bryan","Brazos"],
   "77830": ["Anderson","Grimes"],
@@ -1385,7 +1482,6 @@ let ZipCityCountyTX = {
   "78101": ["Adkins","Bexar"],
   "78102": ["Beeville","Bee"],
   "78108": ["Cibolo","Guadalupe"],
-  "78108": ["Cibolo","Guadalupe"],
   "78109": ["Converse","Bexar"],
   "78111": ["Ecleto","Karnes"],
   "78112": ["Elmendorf","Bexar"],
@@ -1397,7 +1493,6 @@ let ZipCityCountyTX = {
   "78121": ["La Vernia","Wilson"],
   "78122": ["Leesville","Gonzales"],
   "78123": ["Mc Queeney","Guadalupe"],
-  "78124": ["Marion","Guadalupe"],
   "78124": ["Marion","Guadalupe"],
   "78130": ["New Braunfels","Comal"],
   "78132": ["New Braunfels","Comal"],
@@ -1607,7 +1702,6 @@ let ZipCityCountyTX = {
   "78639": ["Kingsland","Llano"],
   "78640": ["Kyle","Hays"],
   "78641": ["Leander","Williamson"],
-  "78641": ["Leander","Williamson"],
   "78642": ["Liberty Hill","Williamson"],
   "78643": ["Llano","Llano"],
   "78644": ["Lockhart","Caldwell"],
@@ -1631,7 +1725,6 @@ let ZipCityCountyTX = {
   "78671": ["Stonewall","Gillespie"],
   "78672": ["Tow","Llano"],
   "78676": ["Wimberley","Hays"],
-  "78681": ["Round Rock","Williamson"],
   "78681": ["Round Rock","Williamson"],
   "78682": ["Round Rock","Williamson"],
   "78701": ["Austin","Travis"],
@@ -1798,9 +1891,7 @@ let ZipCityCountyTX = {
   "79111": ["Amarillo","Potter"],
   "79118": ["Amarillo","Randall"],
   "79119": ["Amarillo","Randall"],
-  "79119": ["Amarillo","Randall"],
   "79121": ["Amarillo","Randall"],
-  "79124": ["Amarillo","Potter"],
   "79124": ["Amarillo","Potter"],
   "79166": ["Amarillo","Potter"],
   "79168": ["Amarillo","Potter"],
@@ -1971,7 +2062,6 @@ let ZipCityCountyTX = {
   "79783": ["Tarzan","Martin"],
   "79830": ["Alpine","Brewster"],
   "79832": ["Alpine","Brewster"],
-  "79835": ["Canutillo","El Paso"],
   "79835": ["Canutillo","El Paso"],
   "79836": ["Clint","El Paso"],
   "79839": ["Fort Hancock","Hudspeth"],
