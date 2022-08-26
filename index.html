@@ -256,10 +256,8 @@ function updateROI(e) {
   let PrincInt = 0, TaxInsCost = market;
   if (document.getElementById('acIns').checked) {
     TaxInsCost = market * (taxPcnt + document.getElementById('calcIns').value/(12*100));
-    console.log("Calculated TaxInsCost as: "+TaxInsCost);
   } else {
-    TaxInsCost = (market * taxPcnt + document.getElementById('manIns').value/1)/12;
-    console.log("Calculated TaxInsCost as: "+TaxInsCost+", from manIns: "+document.getElementById('manIns').value/1+", taxPcnt: "+taxPcnt);
+    TaxInsCost = market*taxPcnt + document.getElementById('manIns').value/12;
   }
   let OpEx = TaxInsCost + pm + hoa + fees + maintenance;
   if (document.getElementById("financing").checked) {
@@ -273,7 +271,7 @@ function updateROI(e) {
   document.getElementById('PTCF').textContent = "Pre-Tax Cashflow: $"+PTCF+" per month";
   
   /* Update URL parameters for URL saving and sharing */
-  var uri;
+  var uri = "";
   /* Only print remaining params if they aren't default values */
   if (document.getElementById('purchase').value/1 != 1) uri += "&n="+document.getElementById('purchase').value;
   if (document.getElementById('market').value/1 != 335000) uri += "&m="+document.getElementById('market').value;
@@ -309,8 +307,8 @@ function updateROI(e) {
     var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
     window.history.pushState(null, newTitle, uri);
   } else {
-    uri = encodeURI(window.location.href.split("?")[0]);
-    console.log("uri generated as:"+uri);
+    uri = encodeURI(window.location.href);
+    console.log("No uri generated, new url:"+uri);
     /* Update title and description to improve SEO for chosen mon */
     var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
     window.history.pushState(null, newTitle, uri);
