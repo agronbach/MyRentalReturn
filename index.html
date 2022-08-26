@@ -304,6 +304,9 @@ function updateROI(e) {
   if (document.getElementById('manIns').value/1 != 1800) uri += "&mi="+document.getElementById('manIns').value;
   uri = encodeURI(uri);
   console.log("uri generated as:"+uri);
+  /* Update title and description to improve SEO for chosen mon */
+  var newTitle = ZipCityCountyTX[zip][0] + "Invement Property Rental Return";
+  window.history.pushState(null, newTitle, uri);
 }
 
 //$/ft
